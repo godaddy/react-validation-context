@@ -1,0 +1,22 @@
+.form {
+  display: flex;
+  flex-flow: column;
+
+  > * {
+    margin: 5px;
+  }
+
+  button {
+    align-self: center;
+    color: inherit;
+    background: none;
+    border: 2px solid;
+    border-radius: 5px;
+    padding: 5px;
+  }
+
+  &.invalid button[type="submit"] {
+    opacity: 0.5;
+  }
+}
+

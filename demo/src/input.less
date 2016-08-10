@@ -1,0 +1,28 @@
+.label {
+  display: inline-flex;
+  flex-flow: column;
+
+  .input {
+    color: inherit;
+    background: none;
+    border: none;
+    border-bottom: 1px solid;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    padding: 0 5px;
+    font-size: 125%;
+  }
+
+  &.invalid {
+    color: lighten(red, 20%);
+
+    .input {
+      background-color: fade(red, 10%);
+    }
+  }
+
+  .children {
+    margin: 0 5px;
+  }
+}
+
