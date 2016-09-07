@@ -69,14 +69,17 @@ export default class Validate extends Validates {
 
 Validate.defaultProps = {
   validate: () => null // by default, validation is disabled
-}
+};
 
 Validate.propTypes = {
   validate: React.PropTypes.func // validation function
-}
+};
 
-// Inherit all propTypes from Validate
-Object.keys(Validates.propTypes).forEach(k => (Validate.propTypes[k] = Validates.propTypes[k]));
+// Inherit all propTypes from Validate. In production propTypes are stipped
+// so be sure to check for their existence before copying them over.
+if (Validates.propTypes) {
+  Object.keys(Validates.propTypes).forEach(k => (Validate.propTypes[k] = Validates.propTypes[k]));
+}
 
 Validate.childContextTypes = {
   onValidChange: React.PropTypes.func
