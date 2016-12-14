@@ -3,21 +3,26 @@
   "version": "1.1.1",
   "description": "Components for providing validation via React context",
   "author": "GoDaddy Operating Company, LLC",
-  "contributors": ["Stanley Zhang <sxzhang@godaddy.com>"],
+  "contributors": [
+    "Stanley Zhang <sxzhang@godaddy.com>"
+  ],
   "license": "MIT",
   "keywords": [
     "react",
     "validation",
     "context"
   ],
-  "main": "index.js",
+  "main": "./lib",
+  "browser": "./src",
   "files": [
     "*.js",
     "test"
   ],
   "scripts": {
-    "pretest": "godaddy-js-style-lint index.js test",
-    "test": "istanbul cover --report cobertura _mocha -- --compilers js:babel-register"
+    "pretest": "godaddy-js-style-lint ./src ./test",
+    "test": "istanbul cover --report cobertura _mocha -- --compilers js:babel-register",
+    "prepublish": "npm run build",
+    "build": "babel src -d lib"
   },
   "repository": {
     "type": "git",
@@ -49,6 +54,7 @@
   "devDependencies": {
     "assume": "^1.4",
     "assume-sinon": "^1.0",
+    "babel-cli": "~6.18.0",
     "babel-eslint": "^6.0",
     "babel-register": "^6.9",
     "godaddy-style": "^3.1.6",
