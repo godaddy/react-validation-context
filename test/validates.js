@@ -3,7 +3,7 @@ import sinon from 'sinon';
 import React from 'react';
 
 import { render, MockContext, testRendersAsChildren, testValidatesHandlers } from './utils';
-import Validates from '../Validates';
+import Validates from '../validates';
 
 describe('Validates', function ValidatesTests() {
   testRendersAsChildren(Validates);
