@@ -54,7 +54,7 @@
   "devDependencies": {
     "assume": "^1.4",
     "assume-sinon": "^1.0",
-    "babel-cli": "~6.18.0",
+    "babel-cli": "^6.18.0",
     "babel-eslint": "^6.0",
     "babel-register": "^6.9",
     "godaddy-style": "^3.1.6",
