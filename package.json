@@ -19,8 +19,8 @@
     "test"
   ],
   "scripts": {
-    "pretest": "godaddy-js-style-lint *.js ./test",
     "test": "istanbul cover --report cobertura _mocha -- --compilers js:babel-register",
+    "pretest": "godaddy-js-style-lint *.js ./test",
     "prepublish": "npm run build",
     "build": "babel *.js -d lib"
   },
