@@ -13,16 +13,16 @@
     "context"
   ],
   "main": "./lib",
-  "browser": "./src",
+  "browser": "./index",
   "files": [
     "*.js",
     "test"
   ],
   "scripts": {
-    "pretest": "godaddy-js-style-lint ./src ./test",
+    "pretest": "godaddy-js-style-lint *.js ./test",
     "test": "istanbul cover --report cobertura _mocha -- --compilers js:babel-register",
     "prepublish": "npm run build",
-    "build": "babel src -d lib"
+    "build": "babel *.js -d lib"
   },
   "repository": {
     "type": "git",

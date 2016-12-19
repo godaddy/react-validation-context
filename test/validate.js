@@ -3,8 +3,8 @@ import sinon from 'sinon';
 import React from 'react';
 
 import { render, testRendersAsChildren, testValidatesHandlers } from './utils';
-import Validate from '../src/validate';
-import Validates from '../src/validates';
+import Validate from '../validate';
+import Validates from '../validates';
 
 describe('Validate', function ValidatesTests() {
   testRendersAsChildren(Validate);
