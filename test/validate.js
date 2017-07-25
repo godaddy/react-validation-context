@@ -58,7 +58,7 @@ describe('Validate', function ValidatesTests() {
           wasValid = isValid;
           isValid = valids[i];
 
-          const validateSpy = sinon.spy(function validate() { return isValid });
+          const validateSpy = sinon.spy(function validate() { return isValid; });
           elem.setState({ validate: validateSpy }, function next() {
             assume(validateSpy).is.called(1);
             check(name, isValid, wasValid);
@@ -106,6 +106,39 @@ describe('Validate', function ValidatesTests() {
       }
 
       test(valids[i]);
+    });
+
+    it('calls the handlers with appropriate names if the child names change', function updatedNamesTest(done) {
+      const validateSpy = sinon.spy();
+      class Fixture extends React.Component {
+        constructor () {
+          super();
+
+          this.state = {
+            childName: 'test-child-name'
+          };
+        }
+
+        render () {
+          const { childName } = this.state;
+          return <Validate name='test' validate={ validateSpy }>
+            <Validates name={ childName } validates={ true } />
+          </Validate>;
+        }
+      }
+
+      function test(elem) {
+        assume(validateSpy).is.called(1);
+        assume(validateSpy).is.calledWithExactly({ 'test-child-name': true });
+        validateSpy.reset();
+        elem.setState({ childName: 'test-child-name-2' }, function next() {
+          assume(validateSpy).is.called(1);
+          assume(validateSpy).is.calledWithExactly({ 'test-child-name-2': true });
+          done();
+        });
+      }
+
+      render(<Fixture ref={ test } />);
     });
   });
 });
