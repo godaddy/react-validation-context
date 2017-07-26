@@ -16,7 +16,8 @@ export default class Validates extends React.Component {
   }
 
   /**
-   * If isValid !== wasValid, calls the onValidChange handlers in props and context with the specified arguments.
+   * If `isValid !== wasValid` or `oldName !== this.props.name`, calls the onValidChange handlers in props and context with the
+   * specified arguments.
    *
    * @param {Mixed} isValid Validity. `true`/`false` if the component is valid/invalid; `null` if validation is disabled;
    * `undefined` if there is no validation at all.
@@ -25,23 +26,17 @@ export default class Validates extends React.Component {
    * context handlers will be called first with `undefined` to indicate th old name no longer has validation.
    */
   onValidChange(isValid, wasValid, oldName) {
-    if (!oldName && isValid === wasValid) {
-      // Nothing changed, return.
-      return;
-    }
-
     const { propsHandler, ctxHandler } = this;
     const { name } = this.props;
 
-    if (oldName && oldName !== name) {
-      if (undef !== wasValid) {
-        propsHandler(oldName, undef, wasValid);
-        ctxHandler(oldName, undef, wasValid);
-      }
+    const nameChanged = oldName && oldName !== name;
+    const validChanged = isValid !== wasValid;
+    if (nameChanged && (undef !== wasValid)) {
+      propsHandler(oldName, undef, wasValid);
+      ctxHandler(oldName, undef, wasValid);
+    }
 
-      propsHandler(name, isValid, wasValid);
-      ctxHandler(name, isValid, wasValid);
-    } else if (isValid !== wasValid) {
+    if (nameChanged || validChanged) {
       propsHandler(name, isValid, wasValid);
       ctxHandler(name, isValid, wasValid);
     }

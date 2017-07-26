@@ -5,6 +5,10 @@ import { func, element } from 'prop-types';
 import TestRenderer from 'react-test-renderer';
 import ShallowRenderer from 'react-test-renderer/shallow';
 
+const undef = void 0;
+
+export { undef };
+
 export function shallowRender(elem) {
   const renderer = new ShallowRenderer();
   renderer.render(elem);
@@ -57,12 +61,15 @@ export function describeValidatesHandlers(Component) {
       const ctxSpy = sinon.spy();
 
       function test(validates) {
+        propsSpy.reset();
+        ctxSpy.reset();
         render(<MockContext onValidChange={ ctxSpy }>
           <Component name={ name } onValidChange={ propsSpy } validates={ validates } />
         </MockContext>);
 
-        let undef;
+        assume(propsSpy).is.called(1);
         assume(propsSpy).is.calledWithExactly(name, validates, undef);
+        assume(ctxSpy).is.called(1);
         assume(ctxSpy).is.calledWithExactly(name, validates, undef);
       }
 
@@ -91,7 +98,6 @@ export function describeValidatesHandlers(Component) {
       }
 
       function test(elem) {
-        const undef = void 0;
         const valids = [
           true,
           false,
@@ -117,14 +123,73 @@ export function describeValidatesHandlers(Component) {
 
           wasValid = isValid;
           isValid = valids[i];
+          propsSpy.reset();
+          ctxSpy.reset();
           elem.setState({ validates: isValid }, function check() {
+            assume(propsSpy).is.called(1);
             assume(propsSpy).is.calledWithExactly(name, isValid, wasValid);
+            assume(ctxSpy).is.called(1);
             assume(ctxSpy).is.calledWithExactly(name, isValid, wasValid);
             call(i + 1);
           });
         }
 
         call(0);
+      }
+
+      render(<Fixture ref={ test } />);
+    });
+  });
+}
+
+export function describeValidatesMountHandlers(Component) {
+  describe('mount/unmount', function unmountTests() {
+    it('calls the context and props handlers at mount and unmount appropriately', function handlerTest(done) {
+      const name = 'test';
+      const validates = true;
+      const propsSpy = sinon.spy();
+      const ctxSpy = sinon.spy();
+
+      class Fixture extends React.Component {
+        constructor() {
+          super();
+          this.state = { shouldMount: false };
+        }
+
+        render() {
+          const { shouldMount } = this.state;
+
+          const child = shouldMount
+            ? <Component name={ name } onValidChange={ propsSpy } validates={ validates } />
+            : null;
+          return <MockContext onValidChange={ ctxSpy }>
+            {child}
+          </MockContext>;
+        }
+      }
+
+      function test(elem) {
+        function didUnmount() {
+          assume(propsSpy).is.called(1);
+          assume(propsSpy).is.calledWithExactly(name, undef, validates);
+          assume(ctxSpy).is.called(1);
+          assume(ctxSpy).is.calledWithExactly(name, undef, validates);
+          done();
+        }
+
+        function didMount() {
+          assume(propsSpy).is.called(1);
+          assume(propsSpy).is.calledWithExactly(name, validates, undef);
+          assume(ctxSpy).is.called(1);
+          assume(ctxSpy).is.calledWithExactly(name, validates, undef);
+          propsSpy.reset();
+          ctxSpy.reset();
+          elem.setState({ shouldMount: false }, didUnmount);
+        }
+
+        assume(propsSpy).is.not.called();
+        assume(ctxSpy).is.not.called();
+        elem.setState({ shouldMount: true }, didMount);
       }
 
       render(<Fixture ref={ test } />);
