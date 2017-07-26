@@ -1,18 +1,18 @@
 import assume from 'assume';
 import sinon from 'sinon';
 import React from 'react';
-import ReactDOM from 'react-dom';
-import ReactTestUtils from 'react-addons-test-utils';
+import { func, element } from 'prop-types';
+import TestRenderer from 'react-test-renderer';
+import ShallowRenderer from 'react-test-renderer/shallow';
 
 export function shallowRender(elem) {
-  const renderer = ReactTestUtils.createRenderer();
+  const renderer = new ShallowRenderer();
   renderer.render(elem);
-  return { renderer, output: renderer.getRenderOutput() };
+  return renderer.getRenderOutput();
 }
 
 export function render(elem) {
-  const tree = document.createElement('div');
-  return { tree, output: ReactDOM.render(elem, tree) };
+  return TestRenderer.create(elem);
 }
 
 export class MockContext extends React.Component {
@@ -25,25 +25,31 @@ export class MockContext extends React.Component {
   }
 }
 
-MockContext.propTypes = { onValidChange: React.PropTypes.func, children: React.PropTypes.element };
-MockContext.childContextTypes = { onValidChange: React.PropTypes.func };
+MockContext.propTypes = {
+  onValidChange: func,
+  children: element
+};
 
-export function testRendersAsChildren(Component) {
+MockContext.childContextTypes = {
+  onValidChange: func
+};
+
+export function describeRenderAsChildren(Component) {
   describe('#render()', function renderTests() {
     it('renders as its child', function renderAsChildTest() {
       const children = <span>this is a test</span>;
-      const { output } = shallowRender(<Component name='test'>{ children }</Component>);
+      const output = shallowRender(<Component name='test'>{ children }</Component>);
       assume(output).equals(children);
     });
 
     it('renders nothing if it does not have children', function renderNothingTest() {
-      const { output } = shallowRender(<Component name='test' />);
+      const output = shallowRender(<Component name='test' />);
       assume(output).equals(null);
     });
   });
 }
 
-export function testValidatesHandlers(Component) {
+export function describeValidatesHandlers(Component) {
   describe('validates handlers', function validatesHandlersTests() {
     it('calls handlers in props and context with the initial state and undefined', function initialTest() {
       const name = 'test';
@@ -69,13 +75,13 @@ export function testValidatesHandlers(Component) {
       const ctxSpy = sinon.spy();
 
       class Fixture extends React.Component {
-        constructor () {
+        constructor() {
           super();
 
           this.state = {};
         }
 
-        render () {
+        render() {
           const { validates } = this.state;
 
           return <MockContext onValidChange={ ctxSpy }>
@@ -85,12 +91,21 @@ export function testValidatesHandlers(Component) {
       }
 
       function test(elem) {
+        const undef = void 0;
         const valids = [
           true,
           false,
           true,
           null,
-          true
+          true,
+          undef,
+          true,
+          false,
+          undef,
+          false,
+          null,
+          undef,
+          null
         ];
 
         let isValid, wasValid;

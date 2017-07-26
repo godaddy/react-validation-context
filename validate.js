@@ -1,14 +1,22 @@
-import React from 'react';
+import { func } from 'prop-types';
 import Validates from './validates';
 
+const undef = void 0;
+
 export default class Validate extends Validates {
-  constructor (props) {
+  constructor(props) {
     super(props);
 
     this.state = {
-      validates: props.validates,
+      validates: undef,
       valids: {}
     };
+  }
+
+  get validates() {
+    // Prefer props over state.
+    const { validates = this.state.validates } = this.props;
+    return validates;
   }
 
   /**
@@ -17,30 +25,35 @@ export default class Validate extends Validates {
    * @returns {Object} The child context.
    * @private
    */
-  getChildContext () {
+  getChildContext() {
     return {
       /**
        * Child validity change handler.
        *
        * @param {String} name Identifier for the field whose validity changed
-       * @param {Mixed} isValid Validity. `true`/`false` if the component is valid/invalid; `null` if validation is disabled
+       * @param {Mixed} isValid Validity. `true`/`false` if the component is valid/invalid; `null` if validation is disabled, and
+       * `undefined` if there is no validation for this name.
        */
       onValidChange: (name, isValid) => {
         const { valids } = this.state;
-        valids[name] = isValid;
-        this.setState({ valids, validates: this.props.validate(valids) });
+        const { validate } = this.props;
+
+        if (isValid === undef) {
+          delete valids[name];
+        } else {
+          valids[name] = isValid;
+        }
+        this.setState({ valids, validates: validate(valids) });
       }
-    }
+    };
   }
 
   /**
    * React lifecycle handler called immediately before the component's initial render.
    */
-  componentWillMount () {
-    const { validates : isValid = this.state.validates } = this.props;
-
+  componentWillMount() {
     // Update the handlers with the initial state
-    this.onValidChange(isValid);
+    this.onValidChange(this.validates);
   }
 
   /**
@@ -48,40 +61,56 @@ export default class Validate extends Validates {
    *
    * @param {Object} nextProps Component's new props.
    */
-  componentWillReceiveProps (nextProps) {
+  componentWillReceiveProps(nextProps) {
     const { validate } = nextProps;
-    this.setState({ validates: validate(this.state.valids) });
+    if (validate === this.props.validate) {
+      return;
+    }
+
+    const { valids } = this.state;
+
+    // Compute new validity, update state
+    this.setState({ validates: validate(valids) });
   }
 
   /**
-   * React lifecycle handler called when component is about to update.
+   * React lifecycle handler called when a component finished updating.
    *
-   * @param {Object} nextProps Component's new props.
-   * @param {Object} nextState Component's new state.
+   * @param {Object} prevProps Component's old props.
+   * @param {Object} prevState Component's old state.
    */
-  componentWillUpdate (nextProps, nextState) {
-    const { validates: wasValid = this.state.validates } = this.props;
-    const { validates: isValid = nextState.validates } = nextProps;
+  componentDidUpdate(prevProps, prevState) {
+    const isValid = this.validates;
 
-    this.onValidChange(isValid, wasValid);
+    // Prefer props over state.
+    const { validates: wasValid = prevState.validates, name: oldName } = prevProps;
+    this.onValidChange(isValid, wasValid, oldName);
+  }
+
+  /**
+   * React lifecycle handler called when component is about to be unmounted.
+   */
+  componentWillUnmount() {
+    // Update the handlers with `isValid=undefined` to notify them that the component no longer is being validated
+    this.onValidChange(undef, this.validates);
   }
 }
 
 Validate.defaultProps = {
-  validate: () => null // by default, validation is disabled
+  validate: () => {} // by default, no validation defined.
 };
 
 Validate.propTypes = {
-  validate: React.PropTypes.func // validation function
+  validate: func.isRequired // validation function
 };
 
-// Inherit all propTypes from Validate. In production propTypes are stipped
+// Inherit all propTypes from Validate. In production propTypes are stripped
 // so be sure to check for their existence before copying them over.
 if (Validates.propTypes) {
   Object.keys(Validates.propTypes).forEach(k => (Validate.propTypes[k] = Validates.propTypes[k]));
 }
 
 Validate.childContextTypes = {
-  onValidChange: React.PropTypes.func
+  onValidChange: func
 };
 
