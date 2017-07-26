@@ -192,11 +192,10 @@ Run the [`mocha`][mocha] unit tests via:
 npm test
 ```
 
-Coverage reports are generated using [`istanbul`][istanbul] for [Cobertura][cobertura].
+Text and HTML coverage reports are generated using [`nyc`][nyc].
 
 
 [react-docs-context]: https://facebook.github.io/react/docs/context.html (React context API docs)
 [mocha]: http://mochajs.org/ (mocha)
-[istanbul]: https://www.npmjs.com/package/istanbul (istanbul)
-[cobertura]: https://cobertura.github.io/cobertura/ (Cobertura)
+[nyc]: https://www.npmjs.com/package/nyc (nyc)
 
