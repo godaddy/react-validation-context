@@ -3,16 +3,46 @@ import Validates from './validates';
 
 const undef = void 0;
 
+/**
+ * This library revolves around the idea of "validity". A component can have one of the following validities:
+ *
+ * - `undefined` - No validation state defined. This is the default.
+ * - `null` - Validation is disabled.
+ * - `true` - Validation passed.
+ * - `false` - Validation failed.
+ *
+ * @typedef {(undefined|null|Boolean)} Validity
+ */
+
+/**
+ * The `Validate` component is used to wrap a component which has descendants that may be validated, and provides an interface for
+ * validating all of those descendants. It extends `Validates` to provide the same interface for listening for validation changes
+ * on the component itself.
+ *
+ * **NOTE**: This component is able to keep track of all conforming descendant components (not just direct children) via the React
+ * `context` api.
+ */
 export default class Validate extends Validates {
+  /**
+   * Creates a new instance of the component.
+   *
+   * @param {Object} props - The component's props.
+   */
   constructor(props) {
     super(props);
 
     this.state = {
-      validates: undef,
-      valids: {}
+      validates: undef, // validity that results from calling the validate() function from props
+      valids: {}        // set of validities for descendent components; key is component name, value is validity
     };
   }
 
+  /**
+   * Whether or not the component currently validates.
+   *
+   * @type {Validity}
+   * @private
+   */
   get validates() {
     // Prefer props over state.
     const { validates = this.state.validates } = this.props;
@@ -23,16 +53,14 @@ export default class Validate extends Validates {
    * Get the child context.
    *
    * @returns {Object} The child context.
-   * @private
    */
   getChildContext() {
     return {
       /**
        * Child validity change handler.
        *
-       * @param {String} name Identifier for the field whose validity changed
-       * @param {Mixed} isValid Validity. `true`/`false` if the component is valid/invalid; `null` if validation is disabled, and
-       * `undefined` if there is no validation for this name.
+       * @param {String} name Identifier for the field whose validity changed.
+       * @param {Validity} isValid The field's current validity.
        */
       onValidChange: (name, isValid) => {
         const { valids } = this.state;
