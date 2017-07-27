@@ -1,18 +1,22 @@
 import assume from 'assume';
 import sinon from 'sinon';
 import React from 'react';
-import ReactDOM from 'react-dom';
-import ReactTestUtils from 'react-addons-test-utils';
+import { func, element } from 'prop-types';
+import TestRenderer from 'react-test-renderer';
+import ShallowRenderer from 'react-test-renderer/shallow';
+
+const undef = void 0;
+
+export { undef };
 
 export function shallowRender(elem) {
-  const renderer = ReactTestUtils.createRenderer();
+  const renderer = new ShallowRenderer();
   renderer.render(elem);
-  return { renderer, output: renderer.getRenderOutput() };
+  return renderer.getRenderOutput();
 }
 
 export function render(elem) {
-  const tree = document.createElement('div');
-  return { tree, output: ReactDOM.render(elem, tree) };
+  return TestRenderer.create(elem);
 }
 
 export class MockContext extends React.Component {
@@ -25,25 +29,31 @@ export class MockContext extends React.Component {
   }
 }
 
-MockContext.propTypes = { onValidChange: React.PropTypes.func, children: React.PropTypes.element };
-MockContext.childContextTypes = { onValidChange: React.PropTypes.func };
+MockContext.propTypes = {
+  onValidChange: func,
+  children: element
+};
 
-export function testRendersAsChildren(Component) {
+MockContext.childContextTypes = {
+  onValidChange: func
+};
+
+export function describeRenderAsChildren(Component) {
   describe('#render()', function renderTests() {
     it('renders as its child', function renderAsChildTest() {
       const children = <span>this is a test</span>;
-      const { output } = shallowRender(<Component name='test'>{ children }</Component>);
+      const output = shallowRender(<Component name='test'>{ children }</Component>);
       assume(output).equals(children);
     });
 
     it('renders nothing if it does not have children', function renderNothingTest() {
-      const { output } = shallowRender(<Component name='test' />);
+      const output = shallowRender(<Component name='test' />);
       assume(output).equals(null);
     });
   });
 }
 
-export function testValidatesHandlers(Component) {
+export function describeValidatesHandlers(Component) {
   describe('validates handlers', function validatesHandlersTests() {
     it('calls handlers in props and context with the initial state and undefined', function initialTest() {
       const name = 'test';
@@ -51,12 +61,15 @@ export function testValidatesHandlers(Component) {
       const ctxSpy = sinon.spy();
 
       function test(validates) {
+        propsSpy.reset();
+        ctxSpy.reset();
         render(<MockContext onValidChange={ ctxSpy }>
           <Component name={ name } onValidChange={ propsSpy } validates={ validates } />
         </MockContext>);
 
-        let undef;
+        assume(propsSpy).is.called(1);
         assume(propsSpy).is.calledWithExactly(name, validates, undef);
+        assume(ctxSpy).is.called(1);
         assume(ctxSpy).is.calledWithExactly(name, validates, undef);
       }
 
@@ -69,13 +82,13 @@ export function testValidatesHandlers(Component) {
       const ctxSpy = sinon.spy();
 
       class Fixture extends React.Component {
-        constructor () {
+        constructor() {
           super();
 
           this.state = {};
         }
 
-        render () {
+        render() {
           const { validates } = this.state;
 
           return <MockContext onValidChange={ ctxSpy }>
@@ -90,7 +103,15 @@ export function testValidatesHandlers(Component) {
           false,
           true,
           null,
-          true
+          true,
+          undef,
+          true,
+          false,
+          undef,
+          false,
+          null,
+          undef,
+          null
         ];
 
         let isValid, wasValid;
@@ -102,14 +123,73 @@ export function testValidatesHandlers(Component) {
 
           wasValid = isValid;
           isValid = valids[i];
+          propsSpy.reset();
+          ctxSpy.reset();
           elem.setState({ validates: isValid }, function check() {
+            assume(propsSpy).is.called(1);
             assume(propsSpy).is.calledWithExactly(name, isValid, wasValid);
+            assume(ctxSpy).is.called(1);
             assume(ctxSpy).is.calledWithExactly(name, isValid, wasValid);
             call(i + 1);
           });
         }
 
         call(0);
+      }
+
+      render(<Fixture ref={ test } />);
+    });
+  });
+}
+
+export function describeValidatesMountHandlers(Component) {
+  describe('mount/unmount', function unmountTests() {
+    it('calls the context and props handlers at mount and unmount appropriately', function handlerTest(done) {
+      const name = 'test';
+      const validates = true;
+      const propsSpy = sinon.spy();
+      const ctxSpy = sinon.spy();
+
+      class Fixture extends React.Component {
+        constructor() {
+          super();
+          this.state = { shouldMount: false };
+        }
+
+        render() {
+          const { shouldMount } = this.state;
+
+          const child = shouldMount
+            ? <Component name={ name } onValidChange={ propsSpy } validates={ validates } />
+            : null;
+          return <MockContext onValidChange={ ctxSpy }>
+            {child}
+          </MockContext>;
+        }
+      }
+
+      function test(elem) {
+        function didUnmount() {
+          assume(propsSpy).is.called(1);
+          assume(propsSpy).is.calledWithExactly(name, undef, validates);
+          assume(ctxSpy).is.called(1);
+          assume(ctxSpy).is.calledWithExactly(name, undef, validates);
+          done();
+        }
+
+        function didMount() {
+          assume(propsSpy).is.called(1);
+          assume(propsSpy).is.calledWithExactly(name, validates, undef);
+          assume(ctxSpy).is.called(1);
+          assume(ctxSpy).is.calledWithExactly(name, validates, undef);
+          propsSpy.reset();
+          ctxSpy.reset();
+          elem.setState({ shouldMount: false }, didUnmount);
+        }
+
+        assume(propsSpy).is.not.called();
+        assume(ctxSpy).is.not.called();
+        elem.setState({ shouldMount: true }, didMount);
       }
 
       render(<Fixture ref={ test } />);

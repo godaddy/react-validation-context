@@ -1,16 +1,35 @@
 import assume from 'assume';
 import sinon from 'sinon';
+import assumeSinon from 'assume-sinon';
 import React from 'react';
 
-import { render, testRendersAsChildren, testValidatesHandlers } from './utils';
+import {
+  undef,
+  render,
+  describeRenderAsChildren,
+  describeValidatesHandlers,
+  describeValidatesMountHandlers
+} from './utils';
 import Validate from '../validate';
 import Validates from '../validates';
 
+assume.use(assumeSinon);
+
 describe('Validate', function ValidatesTests() {
-  testRendersAsChildren(Validate);
-  testValidatesHandlers(Validate);
+  describeRenderAsChildren(Validate);
+  describeValidatesHandlers(Validate);
+  describeValidatesMountHandlers(Validate);
 
   describe('validate handler', function validateHandlerTests() {
+    it('defaults to not specifying a validity (i.e. returns `undefined`)', function defaultHandlerTest() {
+      function test(elem) {
+        const { validate } = elem.props;
+        assume(validate()).equals(undef);
+      }
+
+      render(<Validate name='test' ref={ test } />);
+    });
+
     it('calls the handler with a map from names to validity states', function handlerCallTest() {
       const validateSpy = sinon.spy();
       render(<Validate name='test' validate={ validateSpy }>
@@ -28,15 +47,15 @@ describe('Validate', function ValidatesTests() {
     function testHandlerResult(props, check, done) {
       const name = 'test';
       class Fixture extends React.Component {
-        constructor () {
+        constructor() {
           super();
 
           this.state = {};
         }
 
-        render () {
+        render() {
           const { validate } = this.state;
-          return <Validate name={ name } validate={ validate } {...props} />;
+          return <Validate name={ name } validate={ validate } { ...props } />;
         }
       }
       function test(elem) {
@@ -58,7 +77,7 @@ describe('Validate', function ValidatesTests() {
           wasValid = isValid;
           isValid = valids[i];
 
-          const validateSpy = sinon.spy(function validate() { return isValid });
+          const validateSpy = sinon.spy(function validate() { return isValid; });
           elem.setState({ validate: validateSpy }, function next() {
             assume(validateSpy).is.called(1);
             check(name, isValid, wasValid);
@@ -98,7 +117,6 @@ describe('Validate', function ValidatesTests() {
         const onValidChangeSpy = sinon.spy();
 
         function check(name) {
-          let undef;
           assume(onValidChangeSpy).is.calledWithExactly(name, validates, undef);
         }
 
@@ -106,6 +124,37 @@ describe('Validate', function ValidatesTests() {
       }
 
       test(valids[i]);
+    });
+
+    it('calls the validate function with appropriate names if the child names change', function updatedNamesTest(done) {
+      const validateSpy = sinon.spy();
+      class Fixture extends React.Component {
+        constructor() {
+          super();
+
+          this.state = {
+            childName: 'test-child-name'
+          };
+        }
+
+        render() {
+          const { childName } = this.state;
+          return <Validate name='test' validate={ validateSpy }>
+            <Validates name={ childName } validates={ true } />
+          </Validate>;
+        }
+      }
+
+      function test(elem) {
+        assume(validateSpy).is.calledWithExactly({ 'test-child-name': true });
+        validateSpy.reset();
+        elem.setState({ childName: 'test-child-name-2' }, function next() {
+          assume(validateSpy).is.calledWithExactly({ 'test-child-name-2': true });
+          done();
+        });
+      }
+
+      render(<Fixture ref={ test } />);
     });
   });
 });

@@ -15,7 +15,8 @@ npm install react-validation-context --save
 
 This library revolves around the idea of "validity". A component can have one of the following validities:
 
-- `@typedef {(null|Boolean)} Validity`
+- `@typedef {(undefined|null|Boolean)} Validity`
+  - `undefined` - No validation state defined. This is the default.
   - `null` - Validation is disabled.
   - `true` - Validation passed.
   - `false` - Validation failed.
@@ -34,7 +35,7 @@ The `Validates` component is used to wrap a component that can be validated, pro
 
 ### Props
 
-- `{String} name` - A unique identifier for the component.
+- `{String} name` - A unique identifier for the component. Required.
 - `{Validity} validates` - The component's validity.
 - `{Function} onValidChange` - Validity change handler.
 - `{ReactElement} children` - Children. The component only accepts a single child, and will simply render as that child.
@@ -94,10 +95,6 @@ RequiredInput.propTypes = {
   onChange: React.PropTypes.func, // onChange handler for input
   onValidChange: React.PropTypes.func, // validity change handler
   children: React.PropTypes.node // React children
-};
-
-RequiredInput.defaultProps = {
-  validate: () => null // By default, validation is disabled, so return `null`
 };
 ```
 
@@ -195,11 +192,10 @@ Run the [`mocha`][mocha] unit tests via:
 npm test
 ```
 
-Coverage reports are generated using [`istanbul`][istanbul] for [Cobertura][cobertura].
+Text and HTML coverage reports are generated using [`nyc`][nyc].
 
 
 [react-docs-context]: https://facebook.github.io/react/docs/context.html (React context API docs)
 [mocha]: http://mochajs.org/ (mocha)
-[istanbul]: https://www.npmjs.com/package/istanbul (istanbul)
-[cobertura]: https://cobertura.github.io/cobertura/ (Cobertura)
+[nyc]: https://www.npmjs.com/package/nyc (nyc)
 
