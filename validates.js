@@ -5,35 +5,26 @@ const undef = void 0;
 function noop() {}
 
 export default class Validates extends React.Component {
-  get propsHandler() {
-    const { onValidChange = noop } = this.props;
-    return onValidChange;
-  }
-
-  get ctxHandler() {
-    const { onValidChange = noop } = this.context;
-    return onValidChange;
-  }
-
   /**
-   * If `isValid !== wasValid` or `oldName !== this.props.name`, calls the onValidChange handlers in props and context with the
+   * If `isValid !== wasValid` or `prevName !== this.props.name`, calls the onValidChange handlers in props and context with the
    * specified arguments.
    *
    * @param {Mixed} isValid Validity. `true`/`false` if the component is valid/invalid; `null` if validation is disabled;
    * `undefined` if there is no validation at all.
    * @param {Mixed} wasValid The previous validity.
-   * @param {Object} [oldName] The old name that the component was using. If it is different than the current name, the props and
-   * context handlers will be called first with `undefined` to indicate th old name no longer has validation.
+   * @param {Object} [prevName] The previous name that the component was using. If it is different than the current name, the
+   * props and context handlers will be called first with `undefined` to indicate th old name no longer has validation.
    */
-  onValidChange(isValid, wasValid, oldName) {
-    const { propsHandler, ctxHandler } = this;
+  onValidChange(isValid, wasValid, prevName) {
+    const { onValidChange: propsHandler = noop } = this.props;
+    const { onValidChange: ctxHandler = noop } = this.context;
     const { name } = this.props;
 
-    const nameChanged = oldName && oldName !== name;
+    const nameChanged = prevName && prevName !== name;
     const validChanged = isValid !== wasValid;
     if (nameChanged && (undef !== wasValid)) {
-      propsHandler(oldName, undef, wasValid);
-      ctxHandler(oldName, undef, wasValid);
+      propsHandler(prevName, undef, wasValid);
+      ctxHandler(prevName, undef, wasValid);
     }
 
     if (nameChanged || validChanged) {
@@ -56,10 +47,10 @@ export default class Validates extends React.Component {
    * @param {Object} prevProps Component's old props.
    */
   componentDidUpdate(prevProps) {
-    const { validates: wasValid, name: oldName } = prevProps;
+    const { validates: wasValid, name: prevName } = prevProps;
     const { validates: isValid } = this.props;
 
-    this.onValidChange(isValid, wasValid, oldName);
+    this.onValidChange(isValid, wasValid, prevName);
   }
 
   /**
