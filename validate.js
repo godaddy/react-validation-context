@@ -76,15 +76,15 @@ export default class Validate extends Validates {
   /**
    * React lifecycle handler called when a component finished updating.
    *
-   * @param {Object} prevProps Component's old props.
-   * @param {Object} prevState Component's old state.
+   * @param {Object} prevProps Component's previous props.
+   * @param {Object} prevState Component's previous state.
    */
   componentDidUpdate(prevProps, prevState) {
     const isValid = this.validates;
 
     // Prefer props over state.
-    const { validates: wasValid = prevState.validates, name: oldName } = prevProps;
-    this.onValidChange(isValid, wasValid, oldName);
+    const { validates: wasValid = prevState.validates, name: prevName } = prevProps;
+    this.onValidChange(isValid, wasValid, prevName);
   }
 
   /**

@@ -13,7 +13,7 @@ export default class Validates extends React.Component {
    * `undefined` if there is no validation at all.
    * @param {Mixed} wasValid The previous validity.
    * @param {Object} [prevName] The previous name that the component was using. If it is different than the current name, the
-   * props and context handlers will be called first with `undefined` to indicate th old name no longer has validation.
+   * props and context handlers will be called first with `undefined` to indicate the previous name no longer has validation.
    */
   onValidChange(isValid, wasValid, prevName) {
     const { onValidChange: propsHandler = noop } = this.props;
@@ -44,7 +44,7 @@ export default class Validates extends React.Component {
   /**
    * React lifecycle handler called when a component finished updating.
    *
-   * @param {Object} prevProps Component's old props.
+   * @param {Object} prevProps Component's previous props.
    */
   componentDidUpdate(prevProps) {
     const { validates: wasValid, name: prevName } = prevProps;
