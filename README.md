@@ -2,6 +2,13 @@
 
 Components for providing validation via React context.
 
+# Motivation
+
+There are several scenarios where a parent component's validation depends on whether or not its descendant elements validate. By
+using the [React `context` api][react-docs-context], manual crawling of the React render tree can be avoided. Instead, a handler
+function in the context can be called to update the parent's state whenever the descendant updates. This simplifies the
+implementation of validation in the parent component.
+
 # Install
 
 This package is available on `npm`. Install it using:
@@ -9,7 +16,6 @@ This package is available on `npm`. Install it using:
 ```sh
 npm install react-validation-context --save
 ```
-
 
 # Usage
 
@@ -29,6 +35,10 @@ change handlers. In general, a validity change handler has the following API:
   - `@param {Validity} isValid` - The current validity of the component.
   - `@param {Validity} wasValid` - The previous validity of the component.
 
+The `name` identifier is also key to this library. It allows a collection of descendants to be validated by a parent component.
+Essentially, this library provides a way of tracking the validities of these various names. Note that this is **not** the same as
+tracking the validities of the components themselves, since a component's name may change as well!
+
 ## `Validates`
 
 The `Validates` component is used to wrap a component that can be validated, providing the logic for validation change handlers.
@@ -40,9 +50,30 @@ The `Validates` component is used to wrap a component that can be validated, pro
 - `{Function} onValidChange` - Validity change handler.
 - `{ReactElement} children` - Children. The component only accepts a single child, and will simply render as that child.
 
+#### When is the `onValidChange` handler called?
+
+The function passed as the `onValidChange` prop will be called when:
+- The component mounts and the `validates` prop is not `undefined`
+- The component unmounts and the `validates` prop is not `undefined`
+- The component's `validates` prop changes
+
+During these cases, the `onValidChange` handler is called with:
+- The component's `name` prop
+- The component's validity
+- The component's previous validity
+
+However, if the component's `name` changes and the `validates` prop is not `undefined`, then the `onValidChange` handler will
+first be called with:
+- The previous `name` prop
+- `undefined`, to indicate that the previous `name` no longer has validation defined
+- The component's previous validity, if applicable
+
+Then, if the `validates` prop has changed, the `onValidChange` handler is called **a second time**.
+
 ### Context
 
-If `onValidChange` is present in `Validate`'s context, it will call that context handler appropriately.
+If `onValidChange` is present in `Validate`'s context, it will call that context handler whenever the `onValidChange` handler in
+the props would be called, as described above.
 
 ### Example usage
 
@@ -83,7 +114,7 @@ export default class RequiredInput extends React.Component {
         <input type="text" onChange={onChange} name={name} {...rest} />
         {children}
         {validates ? null : 'This input is required'}
-        </label>
+      </label>
     </Validates>;
   }
 }

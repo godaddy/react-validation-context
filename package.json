@@ -19,8 +19,13 @@
     "test"
   ],
   "nyc": {
-    "require": ["babel-register"],
-    "reporter": ["text", "html"]
+    "require": [
+      "babel-register"
+    ],
+    "reporter": [
+      "text",
+      "html"
+    ]
   },
   "scripts": {
     "build": "babel *.js -d lib",
