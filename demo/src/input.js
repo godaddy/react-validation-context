@@ -11,7 +11,8 @@ export default class Input extends React.Component {
 
     // Set up the initial state based on whether the initial value validates
     const { validate, value, defaultValue } = props;
-    this.state = { validates: validate(value || defaultValue) };
+    const validates = validate(value || defaultValue);
+    this.state = { validates };
 
     this.onChange = this.onChange.bind(this);
   }
@@ -23,7 +24,8 @@ export default class Input extends React.Component {
       onChange(e);
     }
 
-    this.setState({ validates: this.props.validate(e.target.value) });
+    const validates = this.props.validate(e.target.value);
+    this.setState({ validates });
   }
 
   render() {

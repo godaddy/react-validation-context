@@ -2,12 +2,14 @@
 
 Components for providing validation via React context.
 
+
 # Motivation
 
 There are several scenarios where a parent component's validation depends on whether or not its descendant elements validate. By
 using the [React `context` api][react-docs-context], manual crawling of the React render tree can be avoided. Instead, a handler
 function in the context can be called to update the parent's state whenever the descendant updates. This simplifies the
 implementation of validation in the parent component.
+
 
 # Install
 
@@ -16,6 +18,7 @@ This package is available on `npm`. Install it using:
 ```sh
 npm install react-validation-context --save
 ```
+
 
 # Usage
 
@@ -79,54 +82,63 @@ the props would be called, as described above.
 
 ```jsx
 import React from 'react';
+import { string, func } from 'prop-types';
 import { Validates } from 'react-validation-context';
 
+/**
+ * An input that only validates when its value is non-empty and non-whitespace.
+ */
 export default class RequiredInput extends React.Component {
-  constructor (props) {
-    super(...arguments);
+  constructor(props) {
+    super();
 
     // Set up the initial state based on whether the initial value validates
     const { value, defaultValue } = props;
-    this.state = { validates: this.validate(value || defaultValue) };
+    const validates = this.validate(value || defaultValue);
+    this.state = { validates };
+
+    this.onChange = this.onChange.bind(this);
   }
 
-  validate (val) {
-    // Check that the value exists and has non-whitespace content
-    return val && val.trim().length > 0;
+  // Check that the value exists and is non-whitespace
+  validate(value) {
+    return value && value.trim().length > 0;
   }
 
-  render () {
-    const { onChange: origOnChange, onValidChange, name, children, ...rest } = this.props;
+  // Wrap the onChange handler to update `this.state.validates`
+  onChange(e) {
+    const { onChange } = this.props;
+    if (onChange) {
+      onChange(e);
+    }
+
+    const validates = this.validate(e.target.value);
+    this.setState({ validates });
+  }
+
+  render() {
+    const { onChange } = this;
+    const { onValidChange, name, ...inputProps } = this.props;
     const { validates } = this.state;
 
-    // Wrap the onChange handler to update `this.state.validates`
-    const onChange = (e) => {
-      if (origOnChange) {
-        origOnChange(e);
-      }
-
-      this.setState({ validates: this.validate(e.target.value) });
-    };
+    // Set up `input` props
+    Object.assign(inputProps, { onChange, name });
 
     // Render `input` and validation context-aware `Validates`
-    return <Validates validates={validates} onValidChange={onValidChange} name={name}>
-      <label>
-        <input type="text" onChange={onChange} name={name} {...rest} />
-        {children}
-        {validates ? null : 'This input is required'}
-      </label>
+    return <Validates validates={ validates } onValidChange={ onValidChange } name={ name }>
+      <input type='text' { ...inputProps } />
     </Validates>;
   }
 }
 
 RequiredInput.propTypes = {
-  name: React.PropTypes.string.isRequired, // Input identifier name
-  value: React.PropTypes.string, // Input value
-  defaultValue: React.PropTypes.string, // Default input value
-  onChange: React.PropTypes.func, // onChange handler for input
-  onValidChange: React.PropTypes.func, // validity change handler
-  children: React.PropTypes.node // React children
+  name: string.isRequired, // Input identifier name
+  value: string, // Input value
+  defaultValue: string, // Default input value
+  onChange: func, // onChange handler for input
+  onValidChange: func // validity change handler
 };
+
 ```
 
 
@@ -147,6 +159,15 @@ the component itself.
 
 This component also inherits all the props of `Validate`.
 
+#### When is the `validate` function called?
+
+The function passed as the `validate` prop will be called whenever the component must validate its descendants. This can occur
+when the component first mounts, or when at least one of its descendants has changed its name **or** validity.
+
+Whenever the `validate` function is called, it is given a single argument: an `Object` whose keys are the `name`s of the
+descendant components, and whose values are their validities. The `validate` function should then return the validity of the
+component.
+
 ### Context
 
 If `onValidChange` is present in `Validate`'s context, it will call that context handler appropriately.
@@ -155,46 +176,60 @@ If `onValidChange` is present in `Validate`'s context, it will call that context
 
 ```jsx
 import React from 'react';
+import { string, func, node } from 'prop-types';
 import { Validate } from 'react-validation-context';
 
+import styles from './form.less';
+
 export default class Form extends React.Component {
-  constructor () {
-    super(...arguments);
+  constructor() {
+    super();
 
     // The form is initially valid
     this.state = { validates: true };
+
+    this.onValidChange = this.onValidChange.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
   }
 
-  render () {
-    const { onValidChange: origOnValidChange, onSubmit: origOnSubmit, children, name, className, ...rest } = this.props;
-    const { validates } = this.state;
-
-    // The form is invalid if there are any invalid items in its validation context
-    const validate = valids => Object.keys(valids).every(k => valids[k] !== false);
-
-    // Wrap the onValidChange handler to set this.state.validates
-    const onValidChange = (name, isValid, wasValid) => {
-      if (origOnValidChange) {
-        origOnValidChange(name, isValid, wasValid);
-      }
-
-      this.setState({ validates: isValid });
+  // Wrap the onValidChange handler to set this.state.validates
+  onValidChange(name, isValid, wasValid) {
+    const { onValidChange } = this.props;
+    if (onValidChange) {
+      onValidChange(name, isValid, wasValid);
     }
 
-    // Wrap the onSubmit handler to prevent submission if the form is invalid
-    const onSubmit = e => {
-      if (origOnSubmit) {
-        origOnSubmit(e);
-      }
+    this.setState({ validates: isValid });
+  }
 
-      if (!this.state.validates) {
-        e.preventDefault();
-      }
+  // Wrap the onSubmit handler to prevent submission if the form is invalid
+  onSubmit(e) {
+    const { onSubmit } = this.props;
+    if (onSubmit) {
+      onSubmit(e);
     }
+
+    if (!this.state.validates) {
+      e.preventDefault();
+    }
+  }
+
+  // The form is invalid if there are any invalid items in its validation context
+  validate(valids) {
+    return Object.keys(valids).every(k => valids[k] !== false);
+  }
+
+  render() {
+    const { onSubmit, onValidChange, validate } = this;
+    const { children, name, ...formProps } = this.props;
+    delete formProps.onValidChange; // avoid passing down `onValidChange` from props
+
+    // Set up `form` props
+    Object.assign(formProps, { onSubmit, name });
 
     // Render `form` and create validation context `Validate` (which is also validation context-aware)
-    return <Validate validate={validate} onValidChange={onValidChange} name={name}>
-      <form onSubmit={onSubmit} name={name} {...rest}>
+    return <Validate validate={ validate } onValidChange={ onValidChange } name={ name }>
+      <form { ...formProps }>
         {children}
       </form>
     </Validate>;
@@ -202,11 +237,12 @@ export default class Form extends React.Component {
 }
 
 Form.propTypes = {
-  name: React.PropTypes.string.isRequired, // Form identifier name
-  onSubmit: React.PropTypes.func, // onSubmit handler for form
-  onValidChange: React.PropTypes.func, // validity change handler
-  children: React.PropTypes.node // React children
+  name: string.isRequired, // Form identifier name
+  onSubmit: func, // onSubmit handler for form
+  onValidChange: func, // validity change handler
+  children: node // React children
 };
+
 ```
 
 
