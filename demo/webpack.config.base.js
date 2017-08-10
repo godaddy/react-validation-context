@@ -1,73 +1,78 @@
-/* eslint-env node */
-
 const path = require('path');
-const autoprefixer = require('autoprefixer');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const ctxDir = path.resolve(__dirname);
-const srcDir = path.resolve(__dirname, 'src');
-const outDir = path.resolve(__dirname, 'dist');
+const srcDir = path.resolve(ctxDir, 'src');
+const outDir = path.resolve(ctxDir, 'dist');
+const publicPath = '/';
 
 module.exports = {
   devtool: 'cheap-module-source-map',
-  debug: true,
   context: ctxDir,
   entry: {
-    main: [srcDir],
-    app: [path.resolve(srcDir, 'app')]
+    main: ['normalize.css', srcDir],
+    lib: [
+      'babel-polyfill', 'react', 'react-dom'
+    ]
   },
   output: {
     path: outDir,
-    publicPath: '/',
-    filename: '[name].[hash].bundle.js',
-    chunkFilename: '[name].[hash].chunk.js'
+    publicPath,
+    filename: '[name].[chunkhash].js'
   },
   resolve: {
-    root: [srcDir],
-    extensions: ['', '.js'],
-    modulesDirectories: ['node_modules'],
-    fallback: [path.resolve(ctxDir, 'node_modules')]
+    alias: {
+      'react-validation-context': path.resolve(__dirname, '..'),
+      'src': srcDir
+    }
   },
-  resolveLoader: {
-    root: path.resolve(ctxDir, 'node_modules')
-  },
-  postcss: () => [autoprefixer],
   module: {
-    loaders: [{
+    rules: [{
       test: /\.css$/,
-      loaders: [
-        'style',
-        'css'
-        + '?modules'
-        + '&localIdentName=[local]-[hash:base64:5]'
-        + '&importLoaders=1',
-        'postcss'
-      ]
+      include: [/node_modules/],
+      use: [{
+        loader: 'style-loader'
+      }, {
+        loader: 'css-loader',
+        options: {
+          sourceMap: true,
+          importLoaders: 1
+        }
+      }]
     }, {
       test: /\.less$/,
-      loaders: [
-        'style',
-        'css'
-        + '?modules'
-        + '&localIdentName=[local]-[hash:base64:5]'
-        + '&importLoaders=2',
-        'postcss',
-        'less'
-      ]
+      include: [srcDir],
+      use: [{
+        loader: 'style-loader'
+      }, {
+        loader: 'css-loader',
+        options: {
+          sourceMap: true,
+          modules: true,
+          localIdentName: '[local]-[hash:base64:5]',
+          importLoaders: 2
+        }
+      }, {
+        loader: 'less-loader',
+        options: {
+          sourceMap: true
+        }
+      }]
     }, {
       test: /\.js$/,
       exclude: /node_modules/,
-      loaders: ['babel']
-    }, {
-      test: /\.(eot|woff|ttf|svg|jpg|png|ico)$/,
-      loader: 'url?limit=10000&name=[path][name].[hash:base64:5].[ext]'
+      use: [{
+        loader: 'babel-loader'
+      }]
     }]
   },
   plugins: [
-    new webpack.optimize.CommonsChunkPlugin('commons.[hash].js'),
+    new webpack.optimize.CommonsChunkPlugin({
+      name: ['lib', 'manifest']
+    }),
     new HtmlWebpackPlugin({
-      template: path.resolve(srcDir, 'index.html')
+      template: 'src/index.html'
     })
   ]
 };
