@@ -1,5 +1,9 @@
 # CHANGELOG
 
+### 3.0.1
+
+- [#4] Improve documentation
+
 ### 3.0.0
 
 - [#3] Upgrade dependencies and fix state-tracking bug
@@ -12,4 +16,5 @@
   - Use `prop-types` package
 
 [#3]: https://github.com/godaddy/react-validation-context/pull/3
+[#4]: https://github.com/godaddy/react-validation-context/pull/4
 
