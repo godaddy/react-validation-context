@@ -1,5 +1,16 @@
 # CHANGELOG
 
+- Added `package-lock.json`
+- Allow for `react@16.x.x` in `peerDependencies`
+- Move babel dependencies to `devDependencies`
+- Updated dependencies
+  - Bump to `eslint@4.17.0`
+  - Bump to `eslint-config-godaddy-react@2.2.0`
+  - Bump to `eslint-plugin-react@^7.6.1`
+  - Bump to `mocha@^5.0.0`
+  - Bump to `sinon@4.2.2`
+    - `spy.reset()` -> `spy.resetHistory()` as `reset` is depricated
+
 ### 3.0.1
 
 - [#4] Improve documentation

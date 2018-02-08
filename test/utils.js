@@ -61,8 +61,8 @@ export function describeValidatesHandlers(Component) {
       const ctxSpy = sinon.spy();
 
       function test(validates) {
-        propsSpy.reset();
-        ctxSpy.reset();
+        propsSpy.resetHistory();
+        ctxSpy.resetHistory();
         render(<MockContext onValidChange={ ctxSpy }>
           <Component name={ name } onValidChange={ propsSpy } validates={ validates } />
         </MockContext>);
@@ -123,8 +123,8 @@ export function describeValidatesHandlers(Component) {
 
           wasValid = isValid;
           isValid = valids[i];
-          propsSpy.reset();
-          ctxSpy.reset();
+          propsSpy.resetHistory();
+          ctxSpy.resetHistory();
           elem.setState({ validates: isValid }, function check() {
             assume(propsSpy).is.called(1);
             assume(propsSpy).is.calledWithExactly(name, isValid, wasValid);
@@ -182,8 +182,8 @@ export function describeValidatesMountHandlers(Component) {
           assume(propsSpy).is.calledWithExactly(name, validates, undef);
           assume(ctxSpy).is.called(1);
           assume(ctxSpy).is.calledWithExactly(name, validates, undef);
-          propsSpy.reset();
-          ctxSpy.reset();
+          propsSpy.resetHistory();
+          ctxSpy.resetHistory();
           elem.setState({ shouldMount: false }, didUnmount);
         }
 

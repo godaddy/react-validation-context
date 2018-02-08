@@ -147,7 +147,7 @@ describe('Validate', function ValidatesTests() {
 
       function test(elem) {
         assume(validateSpy).is.calledWithExactly({ 'test-child-name': true });
-        validateSpy.reset();
+        validateSpy.resetHistory();
         elem.setState({ childName: 'test-child-name-2' }, function next() {
           assume(validateSpy).is.calledWithExactly({ 'test-child-name-2': true });
           done();
