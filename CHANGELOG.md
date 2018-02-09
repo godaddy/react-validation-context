@@ -1,5 +1,9 @@
 # CHANGELOG
 
+### 3.1.1
+
+- `3.1.0` got published without transpiled `lib` folder, this should fix that.
+
 ### 3.1.0
 
 - Added `package-lock.json`
