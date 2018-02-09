@@ -1,5 +1,7 @@
 # CHANGELOG
 
+### 3.1.0
+
 - Added `package-lock.json`
 - Allow for `react@16.x.x` in `peerDependencies`
 - Move babel dependencies to `devDependencies`
@@ -28,4 +30,3 @@
 
 [#3]: https://github.com/godaddy/react-validation-context/pull/3
 [#4]: https://github.com/godaddy/react-validation-context/pull/4
-
