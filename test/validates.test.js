@@ -97,8 +97,8 @@ describe('Validates', function ValidatesTests() {
         elem.onValidChange(true, true);
         assume(propsSpy).is.not.called();
         assume(ctxSpy).is.not.called();
-        propsSpy.reset();
-        ctxSpy.reset();
+        propsSpy.resetHistory();
+        ctxSpy.resetHistory();
 
         const oldName = 'old-name';
         elem.onValidChange(true, false, oldName);
