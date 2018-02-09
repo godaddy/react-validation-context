@@ -1,5 +1,11 @@
 # CHANGELOG
 
+### 3.1.2
+
+- `3.1.1` was also published without transpiled `lib`, root cause of this was
+  `files` property in the `package.json`. Which caused our `.npmignore` to be
+  ignored.
+
 ### 3.1.1
 
 - `3.1.0` got published without transpiled `lib` folder, this should fix that.
@@ -15,7 +21,7 @@
   - Bump to `eslint-plugin-react@^7.6.1`
   - Bump to `mocha@^5.0.0`
   - Bump to `sinon@4.2.2`
-    - `spy.reset()` -> `spy.resetHistory()` as `reset` is depricated
+    - `spy.reset()` -> `spy.resetHistory()` as `reset` is deprecated
 
 ### 3.0.1
 
