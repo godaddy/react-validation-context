@@ -13,7 +13,8 @@
     "context"
   ],
   "main": "./lib",
-  "browser": "./index",
+  "browser": "./lib",
+  "module": "./index",
   "nyc": {
     "require": [
       "babel-register"
