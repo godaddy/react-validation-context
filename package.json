@@ -13,7 +13,9 @@
     "context"
   ],
   "main": "./lib",
-  "browser": "./index",
+  "browser": "./lib",
+  "module": "./index",
+  "react-native": "./index",
   "nyc": {
     "require": [
       "babel-register"

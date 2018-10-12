@@ -1,5 +1,7 @@
 # CHANGELOG
 
+- [#7] Expose `lib/` from `browser` field
+
 ### 3.1.2
 
 - `3.1.1` was also published without transpiled `lib`, root cause of this was
@@ -40,3 +42,4 @@
 
 [#3]: https://github.com/godaddy/react-validation-context/pull/3
 [#4]: https://github.com/godaddy/react-validation-context/pull/4
+[#7]: https://github.com/godaddy/react-validation-context/pull/7
