@@ -77,9 +77,9 @@ export default class Validate extends Validates {
   }
 
   /**
-   * React lifecycle handler called immediately before the component's initial render.
+   * React lifecycle handler called immediately after the component's initial render.
    */
-  componentWillMount() {
+  componentDidMount() {
     // Update the handlers with the initial state
     this.onValidChange(this.validates);
   }
