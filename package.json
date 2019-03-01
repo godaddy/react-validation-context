@@ -18,7 +18,7 @@
   "react-native": "./index",
   "nyc": {
     "require": [
-      "babel-register"
+      "@babel/register"
     ],
     "reporter": [
       "text",
@@ -42,11 +42,11 @@
   "homepage": "https://github.com/godaddy/react-validation-context#readme",
   "babel": {
     "presets": [
-      "react",
-      "es2015"
+      "@babel/preset-react",
+      "@babel/preset-env"
     ],
     "plugins": [
-      "transform-object-rest-spread"
+      "@babel/plugin-proposal-object-rest-spread"
     ]
   },
   "browserify": {
@@ -55,14 +55,15 @@
     ]
   },
   "devDependencies": {
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.3.4",
+    "@babel/plugin-proposal-object-rest-spread": "^7.3.4",
+    "@babel/preset-env": "^7.3.4",
+    "@babel/preset-react": "^7.0.0",
+    "@babel/register": "^7.0.0",
     "assume": "^2.1.0",
     "assume-sinon": "^1.0",
-    "babel-cli": "^6.24.1",
     "babel-eslint": "^10.0.1",
-    "babel-plugin-transform-object-rest-spread": "^6.23.0",
-    "babel-preset-es2015": "^6.24.1",
-    "babel-preset-react": "^6.24.1",
-    "babel-register": "^6.24.1",
     "eslint": "^5.14.1",
     "eslint-config-godaddy-react": "^4.1.0",
     "eslint-plugin-json": "^1.4.0",

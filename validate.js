@@ -32,6 +32,7 @@ export default class Validate extends Validates {
     super(props);
 
     this.state = {
+      validate: undef,  // callback function to be called
       validates: undef, // validity that results from calling the validate() function from props
       valids: {}        // set of validities for descendent components; key is component name, value is validity
     };
@@ -85,20 +86,24 @@ export default class Validate extends Validates {
   }
 
   /**
-   * React lifecycle handler called when a component is receiving new props.
+   * React lifecycle handler called when a component is mounting or receiving new props.
    *
-   * @param {Object} nextProps Component's new props.
+   * @param {Object} props Component's new props.
+   * @param {Object} state Component's current state.
+   * @returns {Object} updated state object.
    */
-  componentWillReceiveProps(nextProps) {
-    const { validate } = nextProps;
-    if (validate === this.props.validate) {
+  static getDerivedStateFromProps(props, state) {
+    const { validate } = props;
+    if (validate === state.validate) {
       return;
     }
 
-    const { valids } = this.state;
+    const { valids } = state;
 
-    // Compute new validity, update state
-    this.setState({ validates: validate(valids) });
+    return {
+      validates: validate(valids),
+      validate
+    };
   }
 
   /**

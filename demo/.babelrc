@@ -1,16 +1,16 @@
 {
     "presets": [
-        ["env", {
+        ["@babel/preset-react", {
             "targets": {
                 "browsers": ["defaults"]
             },
             "modules": false
         }],
-        "react"
-    ],
-    "plugins": [
+        "@babel/preset-env"
+      ],
+      "plugins": [
         "react-hot-loader/babel",
-        "transform-object-rest-spread"
-    ]
+        "@babel/plugin-proposal-object-rest-spread"
+      ]
 }
 
