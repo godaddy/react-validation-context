@@ -1,5 +1,9 @@
 # CHANGELOG
 
+- Refactoring out deprecated react lifecycle methods
+
+### 4.0.0
+
 - [#7] Expose `lib/` from `browser` field
 
 ### 3.1.2

@@ -32,7 +32,6 @@ export default class Validate extends Validates {
     super(props);
 
     this.state = {
-      validate: undef,  // callback function to be called
       validates: undef, // validity that results from calling the validate() function from props
       valids: {}        // set of validities for descendent components; key is component name, value is validity
     };
@@ -86,38 +85,26 @@ export default class Validate extends Validates {
   }
 
   /**
-   * React lifecycle handler called when a component is mounting or receiving new props.
-   *
-   * @param {Object} props Component's new props.
-   * @param {Object} state Component's current state.
-   * @returns {Object} updated state object.
-   */
-  static getDerivedStateFromProps(props, state) {
-    const { validate } = props;
-    if (validate === state.validate) {
-      return;
-    }
-
-    const { valids } = state;
-
-    return {
-      validates: validate(valids),
-      validate
-    };
-  }
-
-  /**
    * React lifecycle handler called when a component finished updating.
    *
    * @param {Object} prevProps Component's previous props.
    * @param {Object} prevState Component's previous state.
    */
   componentDidUpdate(prevProps, prevState) {
-    const isValid = this.validates;
+    const executeOnValidChange = () => {
+      const isValid = this.validates;
+      // Prefer props over state.
+      const { validates: wasValid = prevState.validates, name: prevName } = prevProps;
+      this.onValidChange(isValid, wasValid, prevName);
+    };
 
-    // Prefer props over state.
-    const { validates: wasValid = prevState.validates, name: prevName } = prevProps;
-    this.onValidChange(isValid, wasValid, prevName);
+    if (this.props.validate !== prevProps.validate) {
+      this.setState({ validates: this.props.validate(this.state.valids) }, () => {
+        executeOnValidChange();
+      });
+    } else {
+      executeOnValidChange();
+    }
   }
 
   /**
