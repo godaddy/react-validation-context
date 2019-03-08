@@ -99,9 +99,7 @@ export default class Validate extends Validates {
     };
 
     if (this.props.validate !== prevProps.validate) {
-      this.setState({ validates: this.props.validate(this.state.valids) }, () => {
-        executeOnValidChange();
-      });
+      this.setState({ validates: this.props.validate(this.state.valids) }, executeOnValidChange);
     } else {
       executeOnValidChange();
     }
