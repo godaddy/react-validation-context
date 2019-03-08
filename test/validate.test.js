@@ -80,9 +80,9 @@ describe('Validate', function ValidatesTests() {
           const validateSpy = sinon.spy(function validate() { return isValid; });
           elem.setState({ validate: validateSpy }, function next() {
             assume(validateSpy).is.called(1);
-            setTimeout(() => {
+            setTimeout(() => { // Needed to allow state to flush
               check(name, isValid, wasValid);
-            }, 1000)
+            });
             call(i + 1);
           });
         }
@@ -97,9 +97,7 @@ describe('Validate', function ValidatesTests() {
       const onValidChangeSpy = sinon.spy();
 
       function check(name, isValid, wasValid) {
-        testHandlerResult.forceUpdate(() => {
-          assume(onValidChangeSpy).is.calledWithExactly(name, isValid, wasValid);
-        });
+        assume(onValidChangeSpy).is.calledWithExactly(name, isValid, wasValid);
       }
 
       testHandlerResult({ onValidChange: onValidChangeSpy }, check, done);
