@@ -1,6 +1,7 @@
 # CHANGELOG
 
 - Refactoring out deprecated react lifecycle methods
+- Upgrading to `@babel/*@7`
 
 ### 4.0.0
 
