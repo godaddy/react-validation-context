@@ -1,5 +1,10 @@
 # CHANGELOG
 
+- Refactoring out deprecated react lifecycle methods
+- Upgrading to `@babel/*@7`
+
+### 4.0.0
+
 - [#7] Expose `lib/` from `browser` field
 
 ### 3.1.2

@@ -80,7 +80,9 @@ describe('Validate', function ValidatesTests() {
           const validateSpy = sinon.spy(function validate() { return isValid; });
           elem.setState({ validate: validateSpy }, function next() {
             assume(validateSpy).is.called(1);
-            check(name, isValid, wasValid);
+            setImmediate(() => { // Needed to allow state to flush
+              check(name, isValid, wasValid);
+            });
             call(i + 1);
           });
         }

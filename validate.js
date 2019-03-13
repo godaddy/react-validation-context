@@ -77,28 +77,11 @@ export default class Validate extends Validates {
   }
 
   /**
-   * React lifecycle handler called immediately before the component's initial render.
+   * React lifecycle handler called immediately after the component's initial render.
    */
-  componentWillMount() {
+  componentDidMount() {
     // Update the handlers with the initial state
     this.onValidChange(this.validates);
-  }
-
-  /**
-   * React lifecycle handler called when a component is receiving new props.
-   *
-   * @param {Object} nextProps Component's new props.
-   */
-  componentWillReceiveProps(nextProps) {
-    const { validate } = nextProps;
-    if (validate === this.props.validate) {
-      return;
-    }
-
-    const { valids } = this.state;
-
-    // Compute new validity, update state
-    this.setState({ validates: validate(valids) });
   }
 
   /**
@@ -108,11 +91,18 @@ export default class Validate extends Validates {
    * @param {Object} prevState Component's previous state.
    */
   componentDidUpdate(prevProps, prevState) {
-    const isValid = this.validates;
+    const executeOnValidChange = () => {
+      const isValid = this.validates;
+      // Prefer props over state.
+      const { validates: wasValid = prevState.validates, name: prevName } = prevProps;
+      this.onValidChange(isValid, wasValid, prevName);
+    };
 
-    // Prefer props over state.
-    const { validates: wasValid = prevState.validates, name: prevName } = prevProps;
-    this.onValidChange(isValid, wasValid, prevName);
+    if (this.props.validate !== prevProps.validate) {
+      this.setState({ validates: this.props.validate(this.state.valids) }, executeOnValidChange);
+    } else {
+      executeOnValidChange();
+    }
   }
 
   /**

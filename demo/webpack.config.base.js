@@ -13,7 +13,7 @@ module.exports = {
   entry: {
     main: ['normalize.css', srcDir],
     lib: [
-      'babel-polyfill', 'react', 'react-dom'
+      '@babel/polyfill', 'react', 'react-dom'
     ]
   },
   output: {
