@@ -1,7 +1,7 @@
-import { func } from 'prop-types';
-import Validates from './validates';
-
-const undef = void 0;
+const Validates = require('./validates');
+const { Context } = require('./context');
+const PropTypes = require('prop-types');
+const React = require('react');
 
 /**
  * This library revolves around the idea of "validity". A component can have one of the following validities:
@@ -15,26 +15,34 @@ const undef = void 0;
  */
 
 /**
- * The `Validate` component is used to wrap a component which has descendants that may be validated, and provides an interface for
- * validating all of those descendants. It extends `Validates` to provide the same interface for listening for validation changes
- * on the component itself.
+ * The `Validate` component is used to wrap a component which has descendants
+ * that may be validated, and provides an interface for validating all of those
+ * descendants. It extends `Validates` to provide the same interface for
+ * listening for validation changes on the component itself.
  *
- * **NOTE**: This component is able to keep track of all conforming descendant components (not just direct children) via the React
- * `context` api.
+ * **NOTE**: This component is able to keep track of all conforming descendant
+ * components (not just direct children) via the React `context` api.
+ *
+ * @public
  */
-export default class Validate extends Validates {
-  /**
-   * Creates a new instance of the component.
-   *
-   * @param {Object} props - The component's props.
-   */
-  constructor(props) {
-    super(props);
+class Validate extends Validates {
+  constructor() {
+    super(...arguments);
 
     this.state = {
-      validates: undef, // validity that results from calling the validate() function from props
-      valids: {}        // set of validities for descendent components; key is component name, value is validity
+      //
+      // Validity that results from calling the validate() function from props
+      //
+      validates: undefined,
+
+      //
+      // Set of validities for descendent components; key is component name,
+      // value is validity.
+      //
+      valids: {}
     };
+
+    this.processValidChange = this.processValidChange.bind(this);
   }
 
   /**
@@ -44,40 +52,34 @@ export default class Validate extends Validates {
    * @private
    */
   get validates() {
-    // Prefer props over state.
-    const { validates = this.state.validates } = this.props;
-    return validates;
+    return this.props.validates || this.state.validates;
   }
 
   /**
-   * Get the child context.
+   * Child validity change handler.
    *
-   * @returns {Object} The child context.
+   * @param {String} name Identifier for the field whose validity changed.
+   * @param {Validity} isValid The field's current validity.
+   * @private
    */
-  getChildContext() {
-    return {
-      /**
-       * Child validity change handler.
-       *
-       * @param {String} name Identifier for the field whose validity changed.
-       * @param {Validity} isValid The field's current validity.
-       */
-      onValidChange: (name, isValid) => {
-        const { valids } = this.state;
-        const { validate } = this.props;
+  processValidChange(name, isValid) {
+    const { valids } = this.state;
+    const { validate } = this.props;
 
-        if (isValid === undef) {
-          delete valids[name];
-        } else {
-          valids[name] = isValid;
-        }
-        this.setState({ valids, validates: validate(valids) });
-      }
-    };
+    if (isValid === undefined) {
+      delete valids[name];
+    } else {
+      valids[name] = isValid;
+    }
+
+    this.setState({ valids, validates: validate(valids) });
   }
 
   /**
-   * React lifecycle handler called immediately after the component's initial render.
+   * React lifecycle handler called immediately after the component's initial
+   * render.
+   *
+   * @private
    */
   componentDidMount() {
     // Update the handlers with the initial state
@@ -89,6 +91,7 @@ export default class Validate extends Validates {
    *
    * @param {Object} prevProps Component's previous props.
    * @param {Object} prevState Component's previous state.
+   * @private
    */
   componentDidUpdate(prevProps, prevState) {
     const executeOnValidChange = () => {
@@ -107,10 +110,29 @@ export default class Validate extends Validates {
 
   /**
    * React lifecycle handler called when component is about to be unmounted.
+   *
+   * @public
    */
   componentWillUnmount() {
-    // Update the handlers with `isValid=undefined` to notify them that the component no longer is being validated
-    this.onValidChange(undef, this.validates);
+    //
+    // Update the handlers with `isValid=undefined` to notify them that the
+    // component no longer is being validated
+    //
+    this.onValidChange(undefined, this.validates);
+  }
+
+  /**
+   * Renders the component.
+   *
+   * @returns {Context.Provider} Rendered component.
+   * @public
+   */
+  render() {
+    return (
+      <Context.Provider value={{ onValidChange: this.processValidChange }}>
+        { this.props.children }
+      </Context.Provider>
+    );
   }
 }
 
@@ -118,17 +140,24 @@ Validate.defaultProps = {
   validate: () => {} // by default, no validation defined.
 };
 
+/**
+ * Specify the PropTypes for validation purposes.
+ *
+ * @type {Object}
+ */
 Validate.propTypes = {
-  validate: func.isRequired // validation function
+  validate: PropTypes.func.isRequired // validation function
 };
 
 // Inherit all propTypes from Validate. In production propTypes are stripped
 // so be sure to check for their existence before copying them over.
 if (Validates.propTypes) {
-  Object.keys(Validates.propTypes).forEach(k => (Validate.propTypes[k] = Validates.propTypes[k]));
+  Object.keys(Validates.propTypes).forEach(function each(key) {
+    Validate.propTypes[key] = Validates.propTypes[key];
+  });
 }
 
-Validate.childContextTypes = {
-  onValidChange: func
-};
-
+//
+// Expose the interface.
+//
+module.exports = Validate;

@@ -1,5 +1,10 @@
-import Validates from './validates';
-import Validate from './validate';
+const { withConsumer, Context } = require('./context');
+const Validates = require('./validates');
+const Validate = require('./validate');
 
-export { Validates, Validate };
-
+module.exports = {
+  Validates: withConsumer(Validates),
+  Validate: withConsumer(Validate),
+  withConsumer,
+  Context
+};
