@@ -1,5 +1,7 @@
 # react-validation-context
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/godaddy/react-validation-context.svg)](https://greenkeeper.io/)
+
 Components for providing validation via React context.
 
 
