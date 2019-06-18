@@ -1,5 +1,7 @@
 # CHANGELOG
 
+### 5.0.0
+
 - [breaking] Upgraded to the latest React context API
 - Refactoring out deprecated react lifecycle methods
 - Upgrading to `@babel/*@7`
