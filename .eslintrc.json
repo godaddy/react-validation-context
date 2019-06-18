@@ -1,4 +1,6 @@
 {
-  "extends": ["godaddy-react"]
+  "extends": ["godaddy-react"],
+  "rules": {
+    "no-undefined": 0
+  }
 }
-

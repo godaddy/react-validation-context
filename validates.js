@@ -1,7 +1,6 @@
-import React from 'react';
-import { string, func, element, oneOf } from 'prop-types';
+const PropTypes = require('prop-types');
+const { Component } = require('react');
 
-const undef = void 0;
 function noop() {}
 
 /**
@@ -26,30 +25,35 @@ function noop() {}
  */
 
 /**
- * The `Validates` component is used to wrap a component that can be validated, providing the logic for validation change
- * handlers.
+ * The `Validates` component is used to wrap a component that can be validated,
+ * providing the logic for validation change handlers.
+ *
+ * @class {Validates}
+ * @public
  */
-export default class Validates extends React.Component {
+class Validates extends Component {
   /**
-   * If `isValid !== wasValid` or `prevName !== this.props.name`, calls the onValidChange handlers in props and context with the
-   * specified arguments.
+   * If `isValid !== wasValid` or `prevName !== this.props.name`, calls the
+   * onValidChange handlers in props and context with the specified arguments.
    *
    * @protected
    * @param {Validity} isValid The current validity.
    * @param {Validity} wasValid The previous validity.
-   * @param {Object} [prevName] The previous name that the component was using. If it is different than the current name, the
-   * props and context handlers will be called first with `undefined` to indicate the previous name no longer has validation.
+   * @param {Object} [prevName] The previous name that the component was using.
+   * If it is different than the current name, the props and context handlers
+   * will be called first with `undefined` to indicate the previous name no
+   * longer has validation.
    */
   onValidChange(isValid, wasValid, prevName) {
-    const { onValidChange: propsHandler = noop } = this.props;
-    const { onValidChange: ctxHandler = noop } = this.context;
-    const { name } = this.props;
+    const { onValidChange: propsHandler = noop, name, context } = this.props;
+    const { onValidChange: ctxHandler = noop } = context;
 
     const nameChanged = prevName && prevName !== name;
     const validChanged = isValid !== wasValid;
-    if (nameChanged && (undef !== wasValid)) {
-      propsHandler(prevName, undef, wasValid);
-      ctxHandler(prevName, undef, wasValid);
+
+    if (nameChanged && (undefined !== wasValid)) {
+      propsHandler(prevName, undefined, wasValid);
+      ctxHandler(prevName, undefined, wasValid);
     }
 
     if (nameChanged || validChanged) {
@@ -59,10 +63,12 @@ export default class Validates extends React.Component {
   }
 
   /**
-   * React lifecycle handler called immediately after the component's initial render
+   * React lifecycle handler called immediately after the component's initial
+   * render.
+   *
+   * @private
    */
   componentDidMount() {
-    // Update the handlers with the initial state
     this.onValidChange(this.props.validates);
   }
 
@@ -70,6 +76,7 @@ export default class Validates extends React.Component {
    * React lifecycle handler called when a component finished updating.
    *
    * @param {Object} prevProps Component's previous props.
+   * @private
    */
   componentDidUpdate(prevProps) {
     const { validates: wasValid, name: prevName } = prevProps;
@@ -79,31 +86,40 @@ export default class Validates extends React.Component {
   }
 
   /**
-   * React lifecycle handler called when component is about to be unmounted.
+   * Update the handlers with `isValid=undefined` to notify them that the
+   * component no longer is being validated.
+   *
+   * @private
    */
   componentWillUnmount() {
-    // Update the handlers with `isValid=undefined` to notify them that the component no longer is being validated
-    this.onValidChange(undef, this.props.validates);
+    this.onValidChange(undefined, this.props.validates);
   }
 
   /**
    * Renders the component.
    *
-   * @returns {React.DOM} Rendered component.
+   * @returns {Component|Null} Rendered component.
+   * @public
    */
   render() {
     return this.props.children || null;
   }
 }
 
+/**
+ * Specify the PropTypes for validation purposes.
+ *
+ * @type {Object}
+ */
 Validates.propTypes = {
-  validates: oneOf([true, false, null]),
-  onValidChange: func,
-  name: string.isRequired,
-  children: element
+  validates: PropTypes.oneOf([true, false, null]),
+  onValidChange: PropTypes.func,
+  name: PropTypes.string.isRequired,
+  children: PropTypes.node,
+  context: PropTypes.object
 };
 
-Validates.contextTypes = {
-  onValidChange: func
-};
-
+//
+// Expose the interface.
+//
+module.exports = Validates;
