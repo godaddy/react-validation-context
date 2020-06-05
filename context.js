@@ -1,5 +1,5 @@
-const addhoc = require('addhoc').default;
-const React = require('react');
+import addhoc from 'addhoc';
+import React from 'react';
 
 /**
  * The custom context.
@@ -24,7 +24,7 @@ const withConsumer = addhoc(getWrappedComponent => (
   </Context.Consumer>
 ), 'withValidationContext');
 
-module.exports = {
+export {
   withConsumer,
   Context
 };

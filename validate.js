@@ -1,7 +1,7 @@
-const Validates = require('./validates');
-const { Context } = require('./context');
-const PropTypes = require('prop-types');
-const React = require('react');
+import Validates from './validates';
+import { Context }  from './context';
+import PropTypes from 'prop-types';
+import React from 'react';
 
 /**
  * This library revolves around the idea of "validity". A component can have one of the following validities:
@@ -160,4 +160,4 @@ if (Validates.propTypes) {
 //
 // Expose the interface.
 //
-module.exports = Validate;
+export default Validate;
