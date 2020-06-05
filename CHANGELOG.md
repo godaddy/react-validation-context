@@ -1,5 +1,9 @@
 # CHANGELOG
 
+### 6.0.0
+
+- Ensure `module` exposes ESM sourcecode
+
 ### 5.0.0
 
 - [breaking] Upgraded to the latest React context API
