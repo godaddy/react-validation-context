@@ -1,5 +1,5 @@
-const PropTypes = require('prop-types');
-const { Component } = require('react');
+import PropTypes from 'prop-types';
+import { Component } from 'react';
 
 function noop() {}
 
@@ -122,4 +122,4 @@ Validates.propTypes = {
 //
 // Expose the interface.
 //
-module.exports = Validates;
+export default Validates;
