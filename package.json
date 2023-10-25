@@ -70,9 +70,9 @@
     "sinon": "^7.2.5"
   },
   "peerDependencies": {
-    "react": "^16.4.0 || ^17.0.0"
+    "react": "16.x || 17.x || 18.x"
   },
   "dependencies": {
-    "addhoc": "^1.1.0"
+    "addhoc": "^2.1.0"
   }
 }
