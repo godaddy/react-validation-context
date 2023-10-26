@@ -1,5 +1,9 @@
 # CHANGELOG
 
+### 6.1.0
+
+- Relax peer deps for React 18
+
 ### 6.0.0
 
 - Ensure `module` exposes ESM sourcecode
