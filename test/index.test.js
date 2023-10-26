@@ -143,19 +143,19 @@ describe('React Validation Context', function () {
       instance = wrapper.instance();
     }
 
-    it.skip('returns the children', function () {
+    it('returns the children', function () {
       create({ name: 'example' }, (<h1>Im an example</h1>));
 
       assume(wrapper.html()).equals('<h1>Im an example</h1>');
     });
 
-    it.skip('works without childen', function () {
+    it('works without childen', function () {
       create({ name: 'example' });
 
       assume(wrapper.html()).equals('');
     });
 
-    it.skip('returns undefined when when no `validates` is provided', function () {
+    it('returns undefined when when no `validates` is provided', function () {
       create({ name: 'example ' });
 
       const result = instance.props.validate();
