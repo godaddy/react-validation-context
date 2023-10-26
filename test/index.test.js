@@ -1,3 +1,5 @@
+global.IS_REACT_ACT_ENVIRONMENT = true;
+
 const { Validates, Context, withConsumer, Validate } = require('../index');
 const { shallow, mount } = require('enzyme');
 const { describe, it } = require('mocha');
@@ -132,9 +134,7 @@ describe('React Validation Context', function () {
         <Validate { ...props }>
           { child && child }
         </Validate>
-      ), {
-        lifecycleExperimental: true
-      });
+      ));
 
       //
       // We need "unpeel" the HOC layers to actually access the right component.
