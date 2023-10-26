@@ -1,6 +1,6 @@
 {
   "name": "react-validation-context",
-  "version": "6.0.0",
+  "version": "6.1.0",
   "description": "Components for providing validation via React context",
   "author": "GoDaddy Operating Company, LLC",
   "contributors": [
